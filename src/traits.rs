@@ -9,4 +9,5 @@ pub trait StateDerivative
     : Clone + Sized + Add<Self, Output = Self> + Sub<Self, Output = Self> + Mul<f64, Output=Self> +
       Div<f64, Output=Self> + Neg<Output=Self>
 {
+    fn abs(&self) -> f64;
 }
