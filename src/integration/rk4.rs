@@ -7,7 +7,9 @@ pub struct RK4Integrator {
 
 impl RK4Integrator {
     pub fn new(step_size: f64) -> Self {
-        RK4Integrator { default_step: step_size }
+        RK4Integrator {
+            default_step: step_size,
+        }
     }
 
     pub fn set_default_step(&mut self, step: f64) {
