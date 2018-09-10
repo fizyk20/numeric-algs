@@ -1,4 +1,4 @@
-use super::{DiffEq, Integrator, StepSize};
+use super::{Integrator, StepSize};
 use traits::State;
 
 pub struct RK4Integrator {
@@ -18,19 +18,20 @@ impl RK4Integrator {
 }
 
 impl<S: State> Integrator<S> for RK4Integrator {
-    fn propagate<D>(&mut self, start: S, diff_eq: D, step_size: StepSize) -> S
-        where D: DiffEq<S>
+    fn propagate_in_place<D>(&mut self, start: &mut S, diff_eq: D, step_size: StepSize)
+    where
+        D: Fn(&S) -> S::Derivative,
     {
         let h = match step_size {
             StepSize::UseDefault => self.default_step,
             StepSize::Step(x) => x,
         };
 
-        let k1 = diff_eq.derivative(start.clone());
-        let k2 = diff_eq.derivative(start.shift(k1.clone(), h / 2.0));
-        let k3 = diff_eq.derivative(start.shift(k2.clone(), h / 2.0));
-        let k4 = diff_eq.derivative(start.shift(k3.clone(), h));
+        let k1 = diff_eq(start);
+        let k2 = diff_eq(&start.shift(&k1, h / 2.0));
+        let k3 = diff_eq(&start.shift(&k2, h / 2.0));
+        let k4 = diff_eq(&start.shift(&k3, h));
 
-        start.shift(k1 + k2 * 2.0 + k3 * 2.0 + k4, h / 6.0)
+        start.shift_in_place(&(k1 + k2 * 2.0 + k3 * 2.0 + k4), h / 6.0);
     }
 }

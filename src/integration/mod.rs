@@ -1,10 +1,6 @@
-mod rk4;
 mod dormand_prince;
+mod rk4;
 use traits::State;
-
-pub trait DiffEq<S: State> {
-    fn derivative(&self, state: S) -> S::Derivative;
-}
 
 pub enum StepSize {
     UseDefault,
@@ -12,7 +8,18 @@ pub enum StepSize {
 }
 
 pub trait Integrator<S: State> {
-    fn propagate<D>(&mut self, start: S, diff_eq: D, step: StepSize) -> S where D: DiffEq<S>;
+    fn propagate_in_place<D>(&mut self, start: &mut S, diff_eq: D, step: StepSize)
+    where
+        D: Fn(&S) -> S::Derivative;
+
+    fn propagate<D>(&mut self, start: &S, diff_eq: D, step: StepSize) -> S
+    where
+        D: Fn(&S) -> S::Derivative,
+    {
+        let mut result = start.clone();
+        self.propagate_in_place(&mut result, diff_eq, step);
+        result
+    }
 }
 
 pub use self::dormand_prince::DPIntegrator;

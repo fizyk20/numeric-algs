@@ -1,4 +1,5 @@
-use super::{DiffEq, Integrator, StepSize};
+use super::{Integrator, StepSize};
+use std::mem;
 use traits::{State, StateDerivative};
 
 pub struct DPIntegrator<S: State> {
@@ -33,50 +34,50 @@ impl<S: State> DPIntegrator<S> {
 }
 
 impl<S: State> Integrator<S> for DPIntegrator<S> {
-    fn propagate<D>(&mut self, start: S, diff_eq: D, step_size: StepSize) -> S
-        where D: DiffEq<S>
+    fn propagate_in_place<D>(&mut self, start: &mut S, diff_eq: D, step_size: StepSize)
+    where
+        D: Fn(&S) -> S::Derivative,
     {
         let h = match step_size {
             StepSize::UseDefault => self.default_step,
             StepSize::Step(x) => x,
         };
 
-        let k1 = if let Some(ref last_derivative) = self.last_derivative {
-            last_derivative.clone()
+        let k1 = if let Some(last_derivative) = mem::replace(&mut self.last_derivative, None) {
+            last_derivative
         } else {
-            diff_eq.derivative(start.clone())
+            diff_eq(start)
         };
-        let k2 = diff_eq.derivative(start.shift(k1.clone() / 5.0, h));
-        let k3 = diff_eq.derivative(start.shift(k1.clone() * 3.0 / 40.0 + k2.clone() * 9.0 / 40.0,
-                                                h));
-        let k4 = diff_eq.derivative(start.shift(k1.clone() * 44.0 / 45.0 -
-                                                k2.clone() * 56.0 / 15.0 +
-                                                k3.clone() * 32.0 / 9.0,
-                                                h));
-        let k5 = diff_eq.derivative(start.shift(k1.clone() * 19372.0 / 6561.0 -
-                                                k2.clone() * 25360.0 / 2187.0 +
-                                                k3.clone() * 64448.0 / 6561.0 -
-                                                k4.clone() * 212.0 / 729.0,
-                                                h));
-        let k6 = diff_eq.derivative(start.shift(k1.clone() * 9017.0 / 3168.0 -
-                                                k2.clone() * 355.0 / 33.0 +
-                                                k3.clone() * 46732.0 / 5247.0 +
-                                                k4.clone() * 49.0 / 176.0 -
-                                                k5.clone() * 5103.0 / 18656.0,
-                                                h));
+        let k2 = diff_eq(&start.shift(&(k1.clone() / 5.0), h));
+        let k3 = diff_eq(&start.shift(&(k1.clone() * 3.0 / 40.0 + k2.clone() * 9.0 / 40.0), h));
+        let k4 = diff_eq(&start.shift(
+            &(k1.clone() * 44.0 / 45.0 - k2.clone() * 56.0 / 15.0 + k3.clone() * 32.0 / 9.0),
+            h,
+        ));
+        let k5 = diff_eq(&start.shift(
+            &(k1.clone() * 19372.0 / 6561.0 - k2.clone() * 25360.0 / 2187.0
+                + k3.clone() * 64448.0 / 6561.0 - k4.clone() * 212.0 / 729.0),
+            h,
+        ));
+        let k6 = diff_eq(&start.shift(
+            &(k1.clone() * 9017.0 / 3168.0 - k2.clone() * 355.0 / 33.0
+                + k3.clone() * 46732.0 / 5247.0
+                + k4.clone() * 49.0 / 176.0 - k5.clone() * 5103.0 / 18656.0),
+            h,
+        ));
 
-        let next_state = start.shift(k1.clone() * 35.0 / 384.0 + k3.clone() * 500.0 / 1113.0 +
-                                     k4.clone() * 125.0 / 192.0 -
-                                     k5.clone() * 2187.0 / 6784.0 +
-                                     k6.clone() * 11.0 / 84.0,
-                                     h);
+        start.shift_in_place(
+            &(k1.clone() * 35.0 / 384.0 + k3.clone() * 500.0 / 1113.0 + k4.clone() * 125.0 / 192.0
+                - k5.clone() * 2187.0 / 6784.0 + k6.clone() * 11.0 / 84.0),
+            h,
+        );
 
-        let k7 = diff_eq.derivative(next_state.clone());
+        let k7 = diff_eq(start);
 
-        let error = ((k1 * 71.0 / 576000.0 - k3 * 71.0 / 16695.0 + k4 * 71.0 / 1920.0 -
-                      k5 * 17253.0 / 339200.0 + k6 * 22.0 / 525.0 -
-                      k7.clone() / 40.0) * h)
-                .abs();
+        let error = ((k1 * 71.0 / 576000.0 - k3 * 71.0 / 16695.0 + k4 * 71.0 / 1920.0
+            - k5 * 17253.0 / 339200.0 + k6 * 22.0 / 525.0 - k7.clone() / 40.0)
+            * h)
+            .abs();
 
         if error != 0.0 {
             self.default_step = h * (self.max_err / error).powf(0.25);
@@ -93,7 +94,5 @@ impl<S: State> Integrator<S> for DPIntegrator<S> {
 
         //for optimization
         self.last_derivative = Some(k7);
-
-        next_state
     }
 }
