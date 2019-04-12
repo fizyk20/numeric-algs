@@ -77,7 +77,7 @@ impl<S: State> Integrator<S> for DPIntegrator<S> {
 
         let k7 = diff_eq(&new_state);
 
-        let error = ((k1 * 71.0 / 576000.0 - k3 * 71.0 / 16695.0 + k4 * 71.0 / 1920.0
+        let error = ((k1 * 71.0 / 57600.0 - k3 * 71.0 / 16695.0 + k4 * 71.0 / 1920.0
             - k5 * 17253.0 / 339200.0
             + k6 * 22.0 / 525.0
             - k7.clone() / 40.0)
