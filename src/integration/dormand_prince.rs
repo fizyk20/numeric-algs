@@ -56,26 +56,31 @@ impl<S: State> Integrator<S> for DPIntegrator<S> {
         ));
         let k5 = diff_eq(&start.shift(
             &(k1.clone() * 19372.0 / 6561.0 - k2.clone() * 25360.0 / 2187.0
-                + k3.clone() * 64448.0 / 6561.0 - k4.clone() * 212.0 / 729.0),
+                + k3.clone() * 64448.0 / 6561.0
+                - k4.clone() * 212.0 / 729.0),
             h,
         ));
         let k6 = diff_eq(&start.shift(
             &(k1.clone() * 9017.0 / 3168.0 - k2.clone() * 355.0 / 33.0
                 + k3.clone() * 46732.0 / 5247.0
-                + k4.clone() * 49.0 / 176.0 - k5.clone() * 5103.0 / 18656.0),
+                + k4.clone() * 49.0 / 176.0
+                - k5.clone() * 5103.0 / 18656.0),
             h,
         ));
 
         start.shift_in_place(
             &(k1.clone() * 35.0 / 384.0 + k3.clone() * 500.0 / 1113.0 + k4.clone() * 125.0 / 192.0
-                - k5.clone() * 2187.0 / 6784.0 + k6.clone() * 11.0 / 84.0),
+                - k5.clone() * 2187.0 / 6784.0
+                + k6.clone() * 11.0 / 84.0),
             h,
         );
 
-        let k7 = diff_eq(start);
+        let k7 = diff_eq(&new_state);
 
         let error = ((k1 * 71.0 / 576000.0 - k3 * 71.0 / 16695.0 + k4 * 71.0 / 1920.0
-            - k5 * 17253.0 / 339200.0 + k6 * 22.0 / 525.0 - k7.clone() / 40.0)
+            - k5 * 17253.0 / 339200.0
+            + k6 * 22.0 / 525.0
+            - k7.clone() / 40.0)
             * h)
             .abs();
 
