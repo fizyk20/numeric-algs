@@ -68,7 +68,7 @@ impl<S: State> Integrator<S> for DPIntegrator<S> {
             h,
         ));
 
-        start.shift_in_place(
+        let new_state = start.shift(
             &(k1.clone() * 35.0 / 384.0 + k3.clone() * 500.0 / 1113.0 + k4.clone() * 125.0 / 192.0
                 - k5.clone() * 2187.0 / 6784.0
                 + k6.clone() * 11.0 / 84.0),
@@ -96,6 +96,15 @@ impl<S: State> Integrator<S> for DPIntegrator<S> {
         if self.default_step > self.max_step {
             self.default_step = self.max_step;
         }
+
+        // If the step adjustment makes it much smaller, repeat the calculation to avoid larger
+        // errors
+        if self.default_step < 0.8 * h && step_size == StepSize::UseDefault {
+            self.propagate_in_place(start, diff_eq, step_size);
+            return;
+        }
+
+        *start = new_state;
 
         //for optimization
         self.last_derivative = Some(k7);
