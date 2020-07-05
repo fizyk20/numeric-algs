@@ -5,6 +5,7 @@ authors = ["Bartłomiej Kamiński <fizyk20@gmail.com>"]
 description = "Crate implementing some numerical algorithms"
 license = "MIT"
 repository = "https://github.com/fizyk20/numeric-algs.git"
+edition = "2018"
 
 [lib]
 name = "numeric_algs"

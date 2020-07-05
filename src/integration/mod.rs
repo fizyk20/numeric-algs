@@ -1,6 +1,6 @@
 mod dormand_prince;
 mod rk4;
-use traits::State;
+use crate::traits::State;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum StepSize {

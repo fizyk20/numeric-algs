@@ -1,6 +1,6 @@
 use super::{Integrator, StepSize};
+use crate::traits::{State, StateDerivative};
 use std::mem;
-use traits::{State, StateDerivative};
 
 pub struct DPIntegrator<S: State> {
     default_step: f64,

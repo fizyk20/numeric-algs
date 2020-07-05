@@ -1,7 +1,7 @@
 pub mod integration;
 mod traits;
 
-pub use traits::{State, StateDerivative};
+pub use crate::traits::{State, StateDerivative};
 
 #[cfg(test)]
 mod tests {

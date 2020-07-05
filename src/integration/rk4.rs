@@ -1,5 +1,5 @@
 use super::{Integrator, StepSize};
-use traits::State;
+use crate::traits::State;
 
 pub struct RK4Integrator {
     default_step: f64,
