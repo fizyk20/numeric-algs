@@ -1,6 +1,6 @@
 [package]
 name = "numeric-algs"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Bartłomiej Kamiński <fizyk20@gmail.com>"]
 description = "Crate implementing some numerical algorithms"
 license = "MIT"
