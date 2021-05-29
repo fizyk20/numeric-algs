@@ -1,4 +1,5 @@
 mod neri;
+mod suzuki;
 
 use super::State;
 
@@ -37,3 +38,4 @@ pub trait Integrator<S: State> {
 }
 
 pub use neri::*;
+pub use suzuki::*;
