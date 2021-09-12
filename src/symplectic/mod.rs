@@ -1,4 +1,4 @@
 pub mod integration;
 mod traits;
 
-pub use traits::{State, StateDerivative};
+pub use traits::State;

@@ -1,5 +1,6 @@
 mod dormand_prince;
 mod rk4;
+mod rk8;
 use crate::traits::State;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -25,3 +26,4 @@ pub trait Integrator<S: State> {
 
 pub use self::dormand_prince::DPIntegrator;
 pub use self::rk4::RK4Integrator;
+pub use self::rk8::RK8Integrator;
