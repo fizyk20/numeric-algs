@@ -1,6 +1,8 @@
 use super::{Integrator, StepSize};
 use crate::traits::State;
 
+// Source: https://core.ac.uk/download/pdf/42883081.pdf section 6.6
+
 pub struct RK8Integrator {
     default_step: f64,
 }
